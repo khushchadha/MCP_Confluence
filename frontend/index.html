@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Confluence Agent</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="page-nav">
+      <h1>Confluence Agent</h1>
+      <a href="mcp.html" class="nav-back">MCP Tools →</a>
+    </div>
+
+    <div class="input-row">
+      <textarea id="question" placeholder="Ask something about Confluence..."></textarea>
+      <button id="send">Send</button>
+    </div>
+
+    <div class="steps-box" id="steps" hidden>
+      <div class="steps-label">MCP Tools Called</div>
+      <div class="steps-list" id="steps-list"></div>
+    </div>
+
+    <div class="response-box" id="response"></div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <script>
+    const sendBtn    = document.getElementById('send');
+    const questionEl = document.getElementById('question');
+    const responseEl = document.getElementById('response');
+    const statusEl   = document.getElementById('status');
+    const stepsEl    = document.getElementById('steps');
+    const stepsListEl = document.getElementById('steps-list');
+
+    async function ask() {
+      const question = questionEl.value.trim();
+      if (!question) return;
+
+      sendBtn.disabled = true;
+      responseEl.textContent = '';
+      stepsEl.hidden = true;
+      stepsListEl.innerHTML = '';
+      statusEl.textContent = 'Streaming...';
+
+      try {
+        const res = await fetch('http://127.0.0.1:5000/ask', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          responseEl.textContent = 'Error: ' + (err.error || res.statusText);
+          statusEl.textContent = '';
+          return;
+        }
+
+        const reader  = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+
+          const parts = buffer.split('\n\n');
+          buffer = parts.pop();
+
+          for (const part of parts) {
+            const line = part.trim();
+            if (!line.startsWith('data: ')) continue;
+            try {
+              const event = JSON.parse(line.slice(6));
+              if (event.type === 'text') {
+                responseEl.textContent += event.delta;
+              } else if (event.type === 'tool_call') {
+                stepsEl.hidden = false;
+                const chip = document.createElement('span');
+                chip.className = 'tool-chip';
+                let label = event.name;
+                if (event.args) {
+                  try {
+                    const args = JSON.parse(event.args);
+                    const firstVal = String(Object.values(args)[0] ?? '');
+                    if (firstVal) label += `(${firstVal.length > 40 ? firstVal.slice(0, 40) + '…' : firstVal})`;
+                  } catch {}
+                }
+                chip.textContent = label;
+                stepsListEl.appendChild(chip);
+              } else if (event.type === 'error') {
+                responseEl.textContent = 'Error: ' + event.message;
+              }
+            } catch {}
+          }
+        }
+
+        statusEl.textContent = 'Done.';
+      } catch (err) {
+        responseEl.textContent = 'Could not reach backend: ' + err.message;
+        statusEl.textContent = '';
+      } finally {
+        sendBtn.disabled = false;
+      }
+    }
+
+    sendBtn.addEventListener('click', ask);
+
+    questionEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        ask();
+      }
+    });
+  </script>
+</body>
+</html>

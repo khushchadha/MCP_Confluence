@@ -1,0 +1,255 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #f0f2f5;
+  display: flex;
+  justify-content: center;
+  padding: 48px 16px;
+  min-height: 100vh;
+}
+
+.container {
+  width: 100%;
+  max-width: 760px;
+}
+
+h1 {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #111;
+  margin-bottom: 24px;
+}
+
+.input-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+textarea {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 64px;
+  line-height: 1.5;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+textarea:focus {
+  border-color: #0052cc;
+}
+
+button {
+  padding: 10px 22px;
+  background: #0052cc;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+button:hover:not(:disabled) {
+  background: #003fa3;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* ── MCP tools page ───────────────────────────────────── */
+
+.page-nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 4px;
+}
+
+.nav-back {
+  color: #0052cc;
+  text-decoration: none;
+  font-size: 0.88rem;
+  white-space: nowrap;
+}
+
+.nav-back:hover { text-decoration: underline; }
+
+.page-desc {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 28px;
+}
+
+.tool-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 20px 22px;
+  margin-bottom: 20px;
+}
+
+.tool-header {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.tool-name {
+  font-family: ui-monospace, 'Cascadia Code', 'Courier New', monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111;
+}
+
+.tool-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: #e8f0fe;
+  color: #1a56cc;
+}
+
+.tool-tag--write {
+  background: #fef3e8;
+  color: #b84a00;
+}
+
+.tool-desc {
+  font-size: 0.84rem;
+  color: #555;
+}
+
+.tool-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.tool-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #444;
+}
+
+.optional {
+  font-weight: 400;
+  color: #999;
+}
+
+.tool-fields input[type="text"],
+.tool-fields input[type="number"],
+.tool-fields textarea {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.tool-fields input.input-short { width: 90px; }
+
+.tool-fields input:focus,
+.tool-fields textarea:focus { border-color: #0052cc; }
+
+.tool-fields textarea { resize: vertical; line-height: 1.5; }
+
+.tool-result {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 6px;
+  font-size: 0.84rem;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  font-family: ui-monospace, 'Cascadia Code', 'Courier New', monospace;
+}
+
+.tool-result.loading { background: #f5f5f5; color: #888; }
+.tool-result.success { background: #f0faf0; border: 1px solid #b8ddb8; color: #1a4a1a; }
+.tool-result.error   { background: #fff5f5; border: 1px solid #f5c0c0; color: #8b0000; }
+
+/* ── Agent page — MCP steps panel ────────────────────── */
+
+.steps-box {
+  margin-top: 20px;
+  background: #f8f9ff;
+  border: 1px solid #dde3f5;
+  border-radius: 8px;
+  padding: 12px 16px;
+}
+
+.steps-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+
+.steps-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tool-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #e0e7ff;
+  color: #3730a3;
+  border-radius: 4px;
+  padding: 3px 10px;
+  font-size: 0.82rem;
+  font-family: ui-monospace, 'Cascadia Code', 'Courier New', monospace;
+}
+
+.tool-chip::before {
+  content: '⚙';
+  font-size: 0.85em;
+}
+
+.response-box {
+  margin-top: 28px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  min-height: 140px;
+  white-space: pre-wrap;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: #222;
+}
+
+.status {
+  margin-top: 8px;
+  font-size: 0.78rem;
+  color: #888;
+  min-height: 1em;
+}

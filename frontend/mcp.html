@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MCP Server Tools — Confluence Agent</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="page-nav">
+      <a href="index.html" class="nav-back">← Agent</a>
+      <h1>MCP Server Tools</h1>
+    </div>
+    <p class="page-desc">Call Confluence MCP tools directly — no agent involved.</p>
+
+    <!-- search_pages -->
+    <div class="tool-card" id="card-search_pages">
+      <div class="tool-header">
+        <span class="tool-name">search_pages</span>
+        <span class="tool-tag">GET</span>
+        <span class="tool-desc">Search Confluence pages by keyword or phrase</span>
+      </div>
+      <div class="tool-fields">
+        <label>Query
+          <input type="text" id="search_pages-query" placeholder="e.g. deployment process" />
+        </label>
+        <label>Limit
+          <input type="number" id="search_pages-limit" value="10" min="1" max="50" class="input-short" />
+        </label>
+      </div>
+      <button onclick="runTool('search_pages')">Run Tool</button>
+      <div class="tool-result" id="result-search_pages" hidden></div>
+    </div>
+
+    <!-- get_page -->
+    <div class="tool-card" id="card-get_page">
+      <div class="tool-header">
+        <span class="tool-name">get_page</span>
+        <span class="tool-tag">GET</span>
+        <span class="tool-desc">Fetch the full content of a page by its ID</span>
+      </div>
+      <div class="tool-fields">
+        <label>Page ID
+          <input type="text" id="get_page-page_id" placeholder="e.g. 12345678" />
+        </label>
+      </div>
+      <button onclick="runTool('get_page')">Run Tool</button>
+      <div class="tool-result" id="result-get_page" hidden></div>
+    </div>
+
+    <!-- list_spaces -->
+    <div class="tool-card" id="card-list_spaces">
+      <div class="tool-header">
+        <span class="tool-name">list_spaces</span>
+        <span class="tool-tag">GET</span>
+        <span class="tool-desc">List all available Confluence spaces</span>
+      </div>
+      <div class="tool-fields">
+        <label>Limit
+          <input type="number" id="list_spaces-limit" value="25" min="1" max="100" class="input-short" />
+        </label>
+      </div>
+      <button onclick="runTool('list_spaces')">Run Tool</button>
+      <div class="tool-result" id="result-list_spaces" hidden></div>
+    </div>
+
+    <!-- list_pages -->
+    <div class="tool-card" id="card-list_pages">
+      <div class="tool-header">
+        <span class="tool-name">list_pages</span>
+        <span class="tool-tag">GET</span>
+        <span class="tool-desc">List the pages in a space, with their page IDs</span>
+      </div>
+      <div class="tool-fields">
+        <label>Space Key
+          <input type="text" id="list_pages-space_key" placeholder="e.g. MFS" />
+        </label>
+        <label>Limit
+          <input type="number" id="list_pages-limit" value="25" min="1" max="100" class="input-short" />
+        </label>
+      </div>
+      <button onclick="runTool('list_pages')">Run Tool</button>
+      <div class="tool-result" id="result-list_pages" hidden></div>
+    </div>
+
+    <!-- create_page -->
+    <div class="tool-card" id="card-create_page">
+      <div class="tool-header">
+        <span class="tool-name">create_page</span>
+        <span class="tool-tag tool-tag--write">POST</span>
+        <span class="tool-desc">Create a new Confluence page in a space</span>
+      </div>
+      <div class="tool-fields">
+        <label>Space Key
+          <input type="text" id="create_page-space_key" placeholder="e.g. ENG" />
+        </label>
+        <label>Title
+          <input type="text" id="create_page-title" placeholder="Page title" />
+        </label>
+        <label>Content
+          <textarea id="create_page-content" rows="4" placeholder="Page content (plain text or HTML)"></textarea>
+        </label>
+        <label>Parent Page ID <span class="optional">(optional)</span>
+          <input type="text" id="create_page-parent_id" placeholder="Leave blank to create at root" />
+        </label>
+      </div>
+      <button onclick="runTool('create_page')">Run Tool</button>
+      <div class="tool-result" id="result-create_page" hidden></div>
+    </div>
+
+    <!-- update_page -->
+    <div class="tool-card" id="card-update_page">
+      <div class="tool-header">
+        <span class="tool-name">update_page</span>
+        <span class="tool-tag tool-tag--write">PUT</span>
+        <span class="tool-desc">Update an existing Confluence page by its ID</span>
+      </div>
+      <div class="tool-fields">
+        <label>Page ID
+          <input type="text" id="update_page-page_id" placeholder="e.g. 12345678" />
+        </label>
+        <label>New Title
+          <input type="text" id="update_page-title" placeholder="Updated title" />
+        </label>
+        <label>New Content
+          <textarea id="update_page-content" rows="4" placeholder="Updated content (plain text or HTML)"></textarea>
+        </label>
+      </div>
+      <button onclick="runTool('update_page')">Run Tool</button>
+      <div class="tool-result" id="result-update_page" hidden></div>
+    </div>
+  </div>
+
+  <script>
+    const TOOL_ARGS = {
+      search_pages: () => ({
+        query: document.getElementById('search_pages-query').value.trim(),
+        limit: parseInt(document.getElementById('search_pages-limit').value) || 10,
+      }),
+      get_page: () => ({
+        page_id: document.getElementById('get_page-page_id').value.trim(),
+      }),
+      list_spaces: () => ({
+        limit: parseInt(document.getElementById('list_spaces-limit').value) || 25,
+      }),
+      list_pages: () => ({
+        space_key: document.getElementById('list_pages-space_key').value.trim(),
+        limit: parseInt(document.getElementById('list_pages-limit').value) || 25,
+      }),
+      create_page: () => ({
+        space_key: document.getElementById('create_page-space_key').value.trim(),
+        title:     document.getElementById('create_page-title').value.trim(),
+        content:   document.getElementById('create_page-content').value,
+        parent_id: document.getElementById('create_page-parent_id').value.trim(),
+      }),
+      update_page: () => ({
+        page_id: document.getElementById('update_page-page_id').value.trim(),
+        title:   document.getElementById('update_page-title').value.trim(),
+        content: document.getElementById('update_page-content').value,
+      }),
+    };
+
+    async function runTool(name) {
+      const btn      = document.querySelector(`#card-${name} button`);
+      const resultEl = document.getElementById(`result-${name}`);
+
+      btn.disabled    = true;
+      btn.textContent = 'Running…';
+      resultEl.hidden = false;
+      resultEl.className   = 'tool-result loading';
+      resultEl.textContent = 'Calling MCP tool…';
+
+      try {
+        const res  = await fetch('http://127.0.0.1:5000/tools/call', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ tool: name, args: TOOL_ARGS[name]() }),
+        });
+        const json = await res.json();
+        resultEl.className   = res.ok ? 'tool-result success' : 'tool-result error';
+        resultEl.textContent = res.ok ? json.result : ('Error: ' + json.error);
+      } catch (err) {
+        resultEl.className   = 'tool-result error';
+        resultEl.textContent = 'Could not reach backend: ' + err.message;
+      } finally {
+        btn.disabled    = false;
+        btn.textContent = 'Run Tool';
+      }
+    }
+  </script>
+</body>
+</html>

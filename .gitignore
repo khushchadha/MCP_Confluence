@@ -1,0 +1,13 @@
+# Secrets — never commit real credentials
+.env
+backend/.env
+
+# Runtime output
+backend/logs/
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
