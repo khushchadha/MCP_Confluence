@@ -7,7 +7,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from mcp.server.fastmcp import FastMCP
 from mcp_server.confluence_client import ConfluenceClient
-from custom_logger import logger, short
+from custom_logger import logger
 from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).parent.parent / ".env")
@@ -26,13 +26,13 @@ def logged(fn):
     """
     @functools.wraps(fn)
     def wrapper(*args, **kwargs):
-        logger.info(f"MCP_TOOL_RUN | tool={fn.__name__} | input={short(kwargs or args)}")
+        logger.info(f"MCP_TOOL_RUN | tool={fn.__name__} | input={kwargs or args}")
         try:
             output = fn(*args, **kwargs)
         except Exception as exc:
             logger.info(f"MCP_TOOL_FAILED | tool={fn.__name__} | error={exc}")
             raise
-        logger.info(f"MCP_TOOL_OUTPUT | tool={fn.__name__} | output={short(output)}")
+        logger.info(f"MCP_TOOL_OUTPUT | tool={fn.__name__} | output={output}")
         return output
 
     return wrapper

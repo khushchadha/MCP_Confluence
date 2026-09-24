@@ -5,7 +5,7 @@ from agents import Agent, OpenAIChatCompletionsModel, RunContextWrapper, Runner
 from agents.mcp import MCPServerStdio
 from utils.agent_client import get_agent_client
 from utils.helpers import load_prompt
-from custom_logger import logger, short
+from custom_logger import logger
 
 PROMPTS_DIR = Path(__file__).parent / "prompts"
 MCP_SERVER = Path(__file__).parent.parent / "mcp_server" / "server.py"
@@ -62,7 +62,7 @@ def _tool_output(item):
 
 
 async def stream_main_agent_output(user_input: str):
-    logger.info(f"RUN_START | agent=Main Agent | query={short(user_input)}")
+    logger.info(f"RUN_START | agent=Main Agent | query={user_input}")
     started = time.perf_counter()
 
     streamed_any_text = False
@@ -98,11 +98,11 @@ async def stream_main_agent_output(user_input: str):
                     if item_type == "tool_call_item":
                         tool_name, tool_args = _tool_call_fields(item)
                         tool_calls += 1
-                        logger.info(f"TOOL_CALL | tool={tool_name} | input={short(tool_args)}")
+                        logger.info(f"TOOL_CALL | tool={tool_name} | input={tool_args}")
                         yield {"type": "tool_call", "name": tool_name, "args": tool_args}
 
                     elif item_type == "tool_call_output_item":
-                        logger.info(f"TOOL_RESULT | output={short(_tool_output(item))}")
+                        logger.info(f"TOOL_RESULT | output={_tool_output(item)}")
 
                 elif event.type == "raw_response_event":
                     data = event.data
@@ -118,9 +118,9 @@ async def stream_main_agent_output(user_input: str):
 
         logger.info(
             f"RUN_END | agent=Main Agent | tool_calls={tool_calls} | "
-            f"duration={time.perf_counter() - started:.2f}s | response={short(final_output)}"
+            f"duration={time.perf_counter() - started:.2f}s | response={final_output}"
         )
 
     except Exception as exc:
-        logger.info(f"RUN_FAILED | agent=Main Agent | query={short(user_input)} | error={exc}")
+        logger.info(f"RUN_FAILED | agent=Main Agent | query={user_input} | error={exc}")
         raise

@@ -59,13 +59,3 @@ for name in NOISY_LOGGERS:
 # torn down. It is a shutdown race inside the library, not an app failure.
 logging.getLogger("agents.mcp").setLevel(logging.CRITICAL)
 
-MAX_LEN = 500
-
-
-def short(value) -> str:
-    """Collapse a value onto one line and truncate it, so a full page body
-    cannot bury the surrounding events."""
-    text = " ".join(str(value).split())
-    if len(text) > MAX_LEN:
-        return f"{text[:MAX_LEN]}... (+{len(text) - MAX_LEN} chars)"
-    return text

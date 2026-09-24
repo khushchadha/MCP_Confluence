@@ -17,7 +17,7 @@ AGENT_PATH = BASE_DIR / "custom_agents.py" / "agent.py"
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
-from custom_logger import logger, short  # noqa: E402  (needs sys.path set above)
+from custom_logger import logger  # noqa: E402  (needs sys.path set above)
 
 spec = importlib.util.spec_from_file_location("main_agent_module", AGENT_PATH)
 main_agent_module = importlib.util.module_from_spec(spec)
@@ -59,7 +59,7 @@ def ask():
                 except StopAsyncIteration:
                     break
         except Exception as exc:
-            logger.info(f"ASK_FAILED | question={short(question)} | error={exc}")
+            logger.info(f"ASK_FAILED | question={question} | error={exc}")
             yield f"data: {json.dumps({'type': 'error', 'message': str(exc)})}\n\n"
         finally:
             loop.run_until_complete(loop.shutdown_asyncgens())
@@ -77,7 +77,7 @@ def call_tool():
     if not tool:
         return jsonify({"error": "tool is required"}), 400
 
-    logger.info(f"TOOL_CALL | source=http | tool={tool} | input={short(args)}")
+    logger.info(f"TOOL_CALL | source=http | tool={tool} | input={args}")
 
     c = _get_confluence_client()
     try:
@@ -126,11 +126,11 @@ def call_tool():
         else:
             return jsonify({"error": f"Unknown tool: {tool}"}), 400
 
-        logger.info(f"TOOL_RESULT | source=http | tool={tool} | output={short(output)}")
+        logger.info(f"TOOL_RESULT | source=http | tool={tool} | output={output}")
         return jsonify({"result": output})
     except httpx.HTTPStatusError as exc:
         logger.info(f"TOOL_FAILED | source=http | tool={tool} | "
-                    f"status={exc.response.status_code} | input={short(args)}")
+                    f"status={exc.response.status_code} | input={args}")
         # Turn Confluence's raw HTTP errors into something readable in the UI.
         if exc.response.status_code == 404:
             return jsonify({"error": "Not found in Confluence. Check the space key "
@@ -143,7 +143,7 @@ def call_tool():
                                      "Make sure this account can access the requested Confluence space or page."}), 403
         return jsonify({"error": f"Confluence returned {exc.response.status_code}."}), 502
     except Exception as exc:
-        logger.info(f"TOOL_FAILED | source=http | tool={tool} | input={short(args)} | error={exc}")
+        logger.info(f"TOOL_FAILED | source=http | tool={tool} | input={args} | error={exc}")
         return jsonify({"error": str(exc)}), 500
 
 
